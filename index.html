@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>SRM Mathematics Club — the π Booth</title>
+<meta name="description" content="Guess the digits of π, discover how Archimedes found them, and join the SRM Mathematics Club." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<!-- KaTeX. To run offline, see README.md -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>π</text></svg>" />
+</head>
+<body>
+
+<!-- ===================== ANIMATED BACKDROP ===================== -->
+<div class="backdrop" aria-hidden="true">
+  <div class="bd-wash"></div>
+  <svg class="bd-grid" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="gridPat" width="46" height="46" patternUnits="userSpaceOnUse">
+        <path d="M46 0H0V46" fill="none" stroke="currentColor" stroke-width="1" />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#gridPat)" />
+  </svg>
+  <div class="bd-shapes">
+    <svg class="bd-shape s1" viewBox="0 0 100 100"><polygon points="50,3 97,97 3,97" /></svg>
+    <svg class="bd-shape s2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" /></svg>
+    <svg class="bd-shape s3" viewBox="0 0 100 100"><polygon points="50,2 93,26 93,74 50,98 7,74 7,26" /></svg>
+    <svg class="bd-shape s4" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" /></svg>
+    <svg class="bd-shape s5" viewBox="0 0 100 100"><polygon points="50,4 61,39 96,39 68,61 79,96 50,74 21,96 32,61 4,39 39,39" /></svg>
+    <svg class="bd-shape s6" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" /><circle cx="50" cy="50" r="30" /><circle cx="50" cy="50" r="14" /></svg>
+  </div>
+  <div class="bd-digits" id="bdDigits"></div>
+</div>
+
+<!-- ===================== CHROME ===================== -->
+<div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo-ring" id="brandLogo">
+      <img alt="" id="brandLogoImg" />
+      <span class="logo-fallback">π</span>
+    </div>
+    <div class="brand-text">
+      <strong data-cfg="clubName">SRM Mathematics Club</strong>
+      <span data-cfg="school">Scholastica Senior Campus Mirpur</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="slide-counter"><b id="slideNum">1</b><i>/</i><span id="slideTotal">8</span></span>
+    <button class="icon-btn" id="fsBtn" title="Fullscreen (F)" aria-label="Toggle fullscreen">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="dots" id="dots" aria-label="Slide navigation"></nav>
+
+<div class="arrows">
+  <button class="arrow" id="prevBtn" aria-label="Previous slide">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button class="arrow" id="nextBtn" aria-label="Next slide">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+</div>
+
+<!-- ===================== DECK ===================== -->
+<main class="deck" id="deck">
+
+  <!-- ---------- 1. HERO ---------- -->
+  <section class="slide" id="s-hero" data-accent="magenta" data-label="Hook">
+    <div class="slide-inner hero">
+      <div class="hero-left">
+        <span class="eyebrow" data-anim>Club Fair · <span data-cfg="clubNameShort">SRM Math Club</span></span>
+        <h1 class="hero-title" data-anim>
+          How many digits of <span class="pi-glyph">π</span> can you hold in your head?
+        </h1>
+        <p class="hero-sub" data-anim>
+          Most people stop at <b>3.14</b>. Our record holder is on the board.
+          Beat them — then find out how a Greek man with a compass, no calculator and a lot of patience
+          pinned π down <b>2,200 years ago</b>.
+        </p>
+        <div class="hero-cta" data-anim>
+          <button class="btn btn-primary" data-goto="s-game">Play the digit game</button>
+          <button class="btn btn-ghost" data-next>Take the tour →</button>
+        </div>
+        <p class="hero-hint" data-anim>Use <kbd>←</kbd> <kbd>→</kbd> or swipe to move through.</p>
+      </div>
+
+      <div class="hero-right" data-anim>
+        <div class="pi-dial">
+          <svg viewBox="0 0 300 300" class="dial-svg">
+            <circle class="dial-ring" cx="150" cy="150" r="132" />
+            <circle class="dial-ring thin" cx="150" cy="150" r="112" />
+            <polygon class="dial-poly" points="150,18 264,84 264,216 150,282 36,216 36,84" />
+            <line class="dial-diam" x1="18" y1="150" x2="282" y2="150" />
+            <circle class="dial-dot" cx="150" cy="150" r="5" />
+            <g class="dial-spinner">
+              <line x1="150" y1="150" x2="150" y2="30" />
+              <circle cx="150" cy="30" r="7" />
+            </g>
+          </svg>
+          <div class="dial-center"><span>π</span></div>
+        </div>
+        <div class="digit-strip" id="heroDigits" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 2. GAME ---------- -->
+  <section class="slide" id="s-game" data-accent="violet" data-label="Digit Game">
+    <div class="slide-inner narrow">
+      <h2 class="slide-title" data-anim><span class="tag">01</span> The π Challenge</h2>
+      <p class="slide-lead" data-anim>Type the digits after <b>3.</b> — one wrong digit ends the run.</p>
+
+      <div class="game-shell" data-anim>
+        <div class="game-screen" id="gameScreen">
+          <div class="game-readout" id="gameReadout"><span class="seed">3.</span><span id="typedDigits"></span><span class="caret"></span></div>
+          <div class="game-meta">
+            <span class="chip">Digits <b id="gameScore">0</b></span>
+            <span class="chip ghost">Your best <b id="gameBest">0</b></span>
+            <span class="chip ghost">Board record <b id="gameRecord">—</b></span>
+          </div>
+        </div>
+
+        <div class="keypad" id="keypad">
+          <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+          <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+          <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+          <button class="wide" data-key="restart">Restart</button><button data-key="0">0</button>
+          <button class="wide" data-key="done">Finish</button>
+        </div>
+      </div>
+
+      <p class="game-foot" data-anim>Keyboard works too. <kbd>Esc</kbd> restarts, <kbd>Enter</kbd> banks your score.</p>
+    </div>
+
+    <!-- game over overlay -->
+    <div class="overlay" id="gameOver" hidden>
+      <div class="overlay-card">
+        <div class="ov-badge" id="ovBadge">✕</div>
+        <h3 id="ovTitle">Missed it!</h3>
+        <p id="ovDetail" class="ov-detail"></p>
+        <div class="ov-score"><b id="ovScore">0</b><span>digits</span></div>
+        <form class="ov-form" id="scoreForm" autocomplete="off">
+          <input id="playerName" maxlength="14" placeholder="Your name for the board" aria-label="Your name" />
+          <button class="btn btn-primary" type="submit">Add to leaderboard</button>
+        </form>
+        <div class="ov-actions">
+          <button class="btn btn-ghost small" id="ovRetry">Try again</button>
+          <button class="btn btn-ghost small" data-goto="s-board">Skip to board</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 3. LEADERBOARD ---------- -->
+  <section class="slide" id="s-board" data-accent="amber" data-label="Leaderboard">
+    <div class="slide-inner narrow">
+      <h2 class="slide-title" data-anim><span class="tag">02</span> The Board</h2>
+      <p class="slide-lead" data-anim>Today's sharpest memories at this stand.</p>
+
+      <ol class="board" id="board" data-anim></ol>
+      <p class="board-empty" id="boardEmpty" data-anim>No scores yet — be the first name on it.</p>
+
+      <div class="board-foot" data-anim>
+        <button class="btn btn-primary small" data-goto="s-game">Take a shot</button>
+        <button class="icon-btn subtle" id="boardReset" title="Reset the board" aria-label="Reset leaderboard">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 4. ARCHIMEDES ---------- -->
+  <section class="slide" id="s-arch" data-accent="cyan" data-label="Archimedes">
+    <div class="slide-inner wide">
+      <h2 class="slide-title" data-anim><span class="tag">03</span> Where do the digits come from?</h2>
+
+      <div class="arch-grid">
+        <!-- visual -->
+        <div class="arch-stage" data-anim>
+          <svg id="archSvg" viewBox="-1.35 -1.35 2.7 2.7" class="arch-svg" aria-label="Circle with inscribed and circumscribed polygons"></svg>
+          <div class="arch-legend">
+            <span><i class="sw in"></i>inside</span>
+            <span><i class="sw circ"></i>circle</span>
+            <span><i class="sw out"></i>outside</span>
+          </div>
+        </div>
+
+        <!-- narration -->
+        <div class="arch-panel" data-anim>
+          <div class="arch-stepmeta">
+            <span class="step-count">Step <b id="archStepNum">1</b> of <span id="archStepTot">7</span></span>
+            <div class="step-pips" id="archPips"></div>
+          </div>
+          <h3 class="arch-h" id="archTitle"></h3>
+          <div class="arch-body" id="archBody"></div>
+          <div class="arch-math" id="archMath"></div>
+
+          <!-- live bounds -->
+          <div class="bounds" id="archBounds" hidden>
+            <div class="bounds-row">
+              <span class="bl">sides <b id="bN">6</b></span>
+              <button class="btn btn-primary tiny" id="archDouble">Double the sides ↻</button>
+            </div>
+            <div class="squeeze">
+              <div class="sq-line"><span class="sq-lab">lower</span><b class="mono" id="bLow">3.0000000</b></div>
+              <div class="sq-bar"><i id="sqFill"></i><em id="sqPi">π</em></div>
+              <div class="sq-line"><span class="sq-lab">upper</span><b class="mono" id="bHigh">3.4641016</b></div>
+            </div>
+            <div class="locked">
+              <span>digits confirmed:</span>
+              <span class="mono lockstr" id="bLocked">3.</span>
+            </div>
+          </div>
+
+          <div class="arch-nav">
+            <button class="btn btn-ghost small" id="archPrev">← Back</button>
+            <button class="btn btn-primary small" id="archNext">Next step →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 5. MONTE CARLO ---------- -->
+  <section class="slide" id="s-darts" data-accent="lime" data-label="Dart Method">
+    <div class="slide-inner wide">
+      <h2 class="slide-title" data-anim><span class="tag">04</span> Or… just throw things</h2>
+      <p class="slide-lead" data-anim>Rain random darts on a square. Count how many land inside the circle. That ratio <em>is</em> π/4.</p>
+
+      <div class="darts-grid">
+        <div class="darts-stage" data-anim>
+          <canvas id="dartCanvas" width="620" height="620" aria-label="Random darts in a square and circle"></canvas>
+        </div>
+        <div class="darts-panel" data-anim>
+          <div class="dart-math" id="dartMath"></div>
+          <div class="dart-stats">
+            <div class="ds"><span>darts</span><b id="dTotal">0</b></div>
+            <div class="ds"><span>inside</span><b id="dHits">0</b></div>
+            <div class="ds big"><span>π ≈</span><b class="mono" id="dEst">—</b></div>
+          </div>
+          <div class="dart-btns">
+            <button class="btn btn-primary small" data-throw="100">+100</button>
+            <button class="btn btn-primary small" data-throw="2000">+2000</button>
+            <button class="btn btn-ghost small" id="dartAuto">Auto ▶</button>
+            <button class="btn btn-ghost small" id="dartReset">Reset</button>
+          </div>
+          <p class="dart-note">Slow, but it needs no geometry at all — only luck and patience. This is how a lot of modern physics gets done.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 6. CLUB ---------- -->
+  <section class="slide" id="s-club" data-accent="orange" data-label="Our Club">
+    <div class="slide-inner">
+      <h2 class="slide-title" data-anim><span class="tag">05</span> What we actually do</h2>
+      <div class="cards">
+        <article class="card c1" data-anim>
+          <div class="card-ico"><svg viewBox="0 0 100 100"><polygon points="50,8 92,80 8,80"/></svg></div>
+          <h3>Problems worth arguing about</h3>
+          <p>Olympiad-flavoured puzzles, weird proofs, and the occasional problem nobody in the room can crack. Yet.</p>
+        </article>
+        <article class="card c2" data-anim>
+          <div class="card-ico"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42"/><circle cx="50" cy="50" r="20"/></svg></div>
+          <h3>Contest prep, together</h3>
+          <p>Mock rounds and past papers for national &amp; school olympiads — with people who'll explain the step you missed.</p>
+        </article>
+        <article class="card c3" data-anim>
+          <div class="card-ico"><svg viewBox="0 0 100 100"><rect x="12" y="12" width="76" height="76" transform="rotate(12 50 50)"/></svg></div>
+          <h3>Maths you can see</h3>
+          <p>Origami, fractals, code, paper models, π-day chaos. If it can be built or drawn, we build or draw it.</p>
+        </article>
+        <article class="card c4" data-anim>
+          <div class="card-ico"><svg viewBox="0 0 100 100"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28"/></svg></div>
+          <h3>No gatekeeping</h3>
+          <p>You don't need to be "a maths person". Curiosity is the whole entry requirement. Class 7 to 12, all welcome.</p>
+        </article>
+      </div>
+      <p class="club-kicker" data-anim>Come for the puzzles, stay for the people who get excited about the same nonsense you do.</p>
+    </div>
+  </section>
+
+  <!-- ---------- 7. JOIN ---------- -->
+  <section class="slide" id="s-join" data-accent="magenta" data-label="Join Us">
+    <div class="slide-inner">
+      <h2 class="slide-title" data-anim><span class="tag">06</span> Come to a session</h2>
+      <div class="join-grid">
+        <div class="join-main" data-anim>
+          <dl class="info">
+            <div><dt>When</dt><dd><b data-cfg="scheduleDay">Every other Sunday</b><span data-cfg="scheduleTime">2:50 – 3:30 pm</span></dd></div>
+            <div><dt>Where</dt><dd><b data-cfg="room">Room [ROOM]</b><span data-cfg="school">Scholastica Senior Campus Mirpur</span></dd></div>
+            <div><dt>First session</dt><dd><b data-cfg="firstSession">[DATE]</b><span>Just show up — no sign-up needed</span></dd></div>
+            <div><dt>Open to</dt><dd><b data-cfg="openTo">Class 7 – 12</b><span>Every level, every stream</span></dd></div>
+          </dl>
+        </div>
+        <aside class="join-side" data-anim>
+          <div class="logo-ring big" id="joinLogo">
+            <img alt="SRM Mathematics Club logo" id="joinLogoImg" />
+            <span class="logo-fallback">π</span>
+          </div>
+          <div class="leads">
+            <div class="lead"><span>President</span><b data-cfg="president">Sahitto Sarker</b></div>
+            <div class="lead"><span>Vice President</span><b data-cfg="vicePresident">Isham Mahmud</b></div>
+          </div>
+          <p class="join-ask">Grab one of us at the stand — we'll add you to the list right now.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- 8. OUTRO ---------- -->
+  <section class="slide" id="s-end" data-accent="violet" data-label="See You">
+    <div class="slide-inner center">
+      <div class="end-mark" data-anim>
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" class="em-ring" />
+          <polygon points="100,20 169,60 169,140 100,180 31,140 31,60" class="em-poly" />
+          <text x="100" y="128" text-anchor="middle" class="em-pi">π</text>
+        </svg>
+      </div>
+      <h2 class="end-title" data-anim>Every digit was found by someone curious enough to look.</h2>
+      <p class="end-sub" data-anim>Be one of them. <b data-cfg="clubName">SRM Mathematics Club</b> — <span data-cfg="scheduleDay">every other Sunday</span>, <span data-cfg="room">Room [ROOM]</span>.</p>
+      <div class="end-cta" data-anim>
+        <button class="btn btn-primary" data-goto="s-game">Play again</button>
+        <button class="btn btn-ghost" data-goto="s-hero">Back to start</button>
+      </div>
+      <p class="end-credit" data-anim>Digits computed live in your browser with Machin's formula. No lookup tables were harmed.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- defer keeps these after KaTeX and preserves order -->
+<script defer src="js/config.js"></script>
+<script defer src="js/pi.js"></script>
+<script defer src="js/mathtex.js"></script>
+<script defer src="js/deck.js"></script>
+<script defer src="js/leaderboard.js"></script>
+<script defer src="js/game.js"></script>
+<script defer src="js/archimedes.js"></script>
+<script defer src="js/darts.js"></script>
+<script defer src="js/backdrop.js"></script>
+<script defer src="js/main.js"></script>
+</body>
+</html>
