@@ -87,7 +87,7 @@
         </h1>
         <p class="hero-sub" data-anim>
           Most people stop at <b>3.14</b>. Our record holder is on the board.
-          Beat them — then find out how a Greek man with a compass, no calculator and a lot of patience
+          Beat them, then find out how a Greek man with a compass, no calculator and a lot of patience
           pinned π down <b>2,200 years ago</b>.
         </p>
         <div class="hero-cta" data-anim>
@@ -142,7 +142,7 @@
         </div>
       </div>
 
-      <p class="game-foot" data-anim>Keyboard works too. <kbd>Esc</kbd> restarts, <kbd>Enter</kbd> banks your score.</p>
+      <p class="game-foot" data-anim><kbd>Esc</kbd> to restart <kbd>Enter</kbd> to bank your score.</p>
     </div>
 
     <!-- game over overlay -->
@@ -153,7 +153,7 @@
         <p id="ovDetail" class="ov-detail"></p>
         <div class="ov-score"><b id="ovScore">0</b><span>digits</span></div>
         <form class="ov-form" id="scoreForm" autocomplete="off">
-          <input id="playerName" maxlength="14" placeholder="Your name for the board" aria-label="Your name" />
+          <input id="playerName" maxlength="60" placeholder="Your name for the board" aria-label="Your name" />
           <button class="btn btn-primary" type="submit">Add to leaderboard</button>
         </form>
         <div class="ov-actions">
@@ -170,14 +170,37 @@
       <h2 class="slide-title" data-anim><span class="tag">02</span> The Board</h2>
       <p class="slide-lead" data-anim>Today's sharpest memories at this stand.</p>
 
-      <ol class="board" id="board" data-anim></ol>
+      <ol class="board pretty-scroll" id="board" data-anim></ol>
       <p class="board-empty" id="boardEmpty" data-anim>No scores yet — be the first name on it.</p>
+      <!-- sits outside the list so it stays put when the list scrolls -->
+      <div class="board-toggle" id="boardToggle" data-anim></div>
 
+      <!-- the board editor is deliberately keyboard-only (Ctrl+Shift+A) so
+           visitors can't stumble into it — see js/leaderboard.js -->
       <div class="board-foot" data-anim>
         <button class="btn btn-primary small" data-goto="s-game">Take a shot</button>
-        <button class="icon-btn subtle" id="boardReset" title="Reset the board" aria-label="Reset leaderboard">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-        </button>
+      </div>
+    </div>
+
+    <!-- admin: edit / add / remove entries -->
+    <div class="overlay" id="adminPanel" hidden>
+      <div class="overlay-card admin">
+        <h3>Edit the board</h3>
+        <p class="admin-hint">Changes save as you type. Esc or Ctrl + Shift + A closes.</p>
+
+        <div class="admin-rows pretty-scroll" id="adminRows"></div>
+        <p class="admin-none" id="adminNone" hidden>Nothing on the board yet.</p>
+
+        <form class="admin-add" id="adminAdd" autocomplete="off">
+          <input id="adminName" maxlength="60" placeholder="Add a name" aria-label="New entry name" />
+          <input id="adminScore" type="number" min="0" max="1200" placeholder="Digits" aria-label="New entry score" />
+          <button class="btn btn-primary small" type="submit">Add</button>
+        </form>
+
+        <div class="admin-actions">
+          <button class="btn btn-ghost small danger" id="adminClear">Clear the board</button>
+          <button class="btn btn-primary small" id="adminClose">Done</button>
+        </div>
       </div>
     </div>
   </section>
@@ -191,7 +214,7 @@
         <!-- visual -->
         <div class="arch-stage" data-anim>
           <svg id="archSvg" viewBox="-1.35 -1.35 2.7 2.7" class="arch-svg" aria-label="Circle with inscribed and circumscribed polygons"></svg>
-          <div class="arch-legend">
+          <div class="arch-legend" id="archLegend" hidden>
             <span><i class="sw in"></i>inside</span>
             <span><i class="sw circ"></i>circle</span>
             <span><i class="sw out"></i>outside</span>
@@ -210,16 +233,33 @@
 
           <!-- live bounds -->
           <div class="bounds" id="archBounds" hidden>
-            <div class="bounds-row">
-              <span class="bl">sides <b id="bN">6</b></span>
-              <button class="btn btn-primary tiny" id="archDouble">Double the sides ↻</button>
+            <div class="bounds-row" id="archSidesRow">
+              <span class="bl">corners <b id="bN">6</b></span>
+              <div class="side-ctl">
+                <input type="range" id="archSlider" min="0" max="25" step="1" value="0" aria-label="More corners" />
+                <button class="btn btn-primary tiny" id="archDouble">Double ↻</button>
+              </div>
             </div>
-            <div class="squeeze">
-              <div class="sq-line"><span class="sq-lab">lower</span><b class="mono" id="bLow">3.0000000</b></div>
-              <div class="sq-bar"><i id="sqFill"></i><em id="sqPi">π</em></div>
-              <div class="sq-line"><span class="sq-lab">upper</span><b class="mono" id="bHigh">3.4641016</b></div>
+
+            <!-- π is somewhere in the coloured band -->
+            <div class="numline">
+              <div class="nl-track">
+                <i class="nl-band" id="nlBand"></i>
+                <b class="nl-tick" id="nlT3"></b>
+                <b class="nl-tick" id="nlT4"></b>
+                <b class="nl-tick pi" id="nlTpi"></b>
+              </div>
+              <div class="nl-labels">
+                <span id="nlL3">3</span><span id="nlLpi">π</span><span id="nlL4">4</span>
+              </div>
             </div>
-            <div class="locked">
+
+            <div class="bvals">
+              <span>bigger than <b class="mono" id="bLow">3</b></span>
+              <span>smaller than <b class="mono" id="bHigh">4</b></span>
+            </div>
+
+            <div class="locked" id="archLocked">
               <span>digits confirmed:</span>
               <span class="mono lockstr" id="bLocked">3.</span>
             </div>
@@ -227,6 +267,7 @@
 
           <div class="arch-nav">
             <button class="btn btn-ghost small" id="archPrev">← Back</button>
+            <button class="btn btn-ghost small" id="archReplay" hidden>↻ Replay</button>
             <button class="btn btn-primary small" id="archNext">Next step →</button>
           </div>
         </div>
@@ -238,7 +279,7 @@
   <section class="slide" id="s-darts" data-accent="lime" data-label="Dart Method">
     <div class="slide-inner wide">
       <h2 class="slide-title" data-anim><span class="tag">04</span> Or… just throw things</h2>
-      <p class="slide-lead" data-anim>Rain random darts on a square. Count how many land inside the circle. That ratio <em>is</em> π/4.</p>
+      <p class="slide-lead" data-anim>Rain random darts on a square. Count how many land inside the circle. That ratio is π/4.</p>
 
       <div class="darts-grid">
         <div class="darts-stage" data-anim>
@@ -257,7 +298,6 @@
             <button class="btn btn-ghost small" id="dartAuto">Auto ▶</button>
             <button class="btn btn-ghost small" id="dartReset">Reset</button>
           </div>
-          <p class="dart-note">Slow, but it needs no geometry at all — only luck and patience. This is how a lot of modern physics gets done.</p>
         </div>
       </div>
     </div>
@@ -270,26 +310,26 @@
       <div class="cards">
         <article class="card c1" data-anim>
           <div class="card-ico"><svg viewBox="0 0 100 100"><polygon points="50,8 92,80 8,80"/></svg></div>
-          <h3>Problems worth arguing about</h3>
-          <p>Olympiad-flavoured puzzles, weird proofs, and the occasional problem nobody in the room can crack. Yet.</p>
+          <h3>Problems, problems, and problems</h3>
+          <p>Olympiad-flavoured puzzles, weird proofs, and problems nobody in the room can crack. Yet.</p>
         </article>
         <article class="card c2" data-anim>
           <div class="card-ico"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42"/><circle cx="50" cy="50" r="20"/></svg></div>
           <h3>Contest prep, together</h3>
-          <p>Mock rounds and past papers for national &amp; school olympiads — with people who'll explain the step you missed.</p>
+          <p>Mock rounds and past papers for national &amp; school olympiads, taught by the very best.</p>
         </article>
         <article class="card c3" data-anim>
           <div class="card-ico"><svg viewBox="0 0 100 100"><rect x="12" y="12" width="76" height="76" transform="rotate(12 50 50)"/></svg></div>
-          <h3>Maths you can see</h3>
-          <p>Origami, fractals, code, paper models, π-day chaos. If it can be built or drawn, we build or draw it.</p>
+          <h3>Hands-on math</h3>
+          <p>We aren't limited to just pen and paper. Expect to see interactive games, origami, model-making, code and even more</p>
         </article>
         <article class="card c4" data-anim>
           <div class="card-ico"><svg viewBox="0 0 100 100"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28"/></svg></div>
           <h3>No gatekeeping</h3>
-          <p>You don't need to be "a maths person". Curiosity is the whole entry requirement. Class 7 to 12, all welcome.</p>
+          <p>You don't need to be a maths person. Curiosity is the only entry requirement.</p>
         </article>
       </div>
-      <p class="club-kicker" data-anim>Come for the puzzles, stay for the people who get excited about the same nonsense you do.</p>
+      <p class="club-kicker" data-anim>Come for the puzzles, stay for the nonsense.</p>
     </div>
   </section>
 
@@ -300,10 +340,10 @@
       <div class="join-grid">
         <div class="join-main" data-anim>
           <dl class="info">
-            <div><dt>When</dt><dd><b data-cfg="scheduleDay">Every other Sunday</b><span data-cfg="scheduleTime">2:50 – 3:30 pm</span></dd></div>
+            <div><dt>When</dt><dd><b data-cfg="scheduleDay">Every other Sunday</b><span data-cfg="scheduleTime">2:40 – 3:20 pm</span></dd></div>
             <div><dt>Where</dt><dd><b data-cfg="room">Room [ROOM]</b><span data-cfg="school">Scholastica Senior Campus Mirpur</span></dd></div>
-            <div><dt>First session</dt><dd><b data-cfg="firstSession">[DATE]</b><span>Just show up — no sign-up needed</span></dd></div>
-            <div><dt>Open to</dt><dd><b data-cfg="openTo">Class 7 – 12</b><span>Every level, every stream</span></dd></div>
+            <div><dt>First session</dt><dd><b data-cfg="firstSession">[DATE]</b></dd></div>
+            <div><dt>Open to</dt><dd><b data-cfg="openTo">Class 7 – 12</b></dd></div>
           </dl>
         </div>
         <aside class="join-side" data-anim>
@@ -311,11 +351,6 @@
             <img alt="SRM Mathematics Club logo" id="joinLogoImg" />
             <span class="logo-fallback">π</span>
           </div>
-          <div class="leads">
-            <div class="lead"><span>President</span><b data-cfg="president">Sahitto Sarker</b></div>
-            <div class="lead"><span>Vice President</span><b data-cfg="vicePresident">Isham Mahmud</b></div>
-          </div>
-          <p class="join-ask">Grab one of us at the stand — we'll add you to the list right now.</p>
         </aside>
       </div>
     </div>
@@ -332,12 +367,11 @@
         </svg>
       </div>
       <h2 class="end-title" data-anim>Every digit was found by someone curious enough to look.</h2>
-      <p class="end-sub" data-anim>Be one of them. <b data-cfg="clubName">SRM Mathematics Club</b> — <span data-cfg="scheduleDay">every other Sunday</span>, <span data-cfg="room">Room [ROOM]</span>.</p>
+      <p class="end-sub" data-anim>Be one of them. <b data-cfg="clubName">SRM Mathematics Club</b> — <span data-cfg="scheduleDay">every other Sunday</span>, <span data-cfg="scheduleTime">2:40 - 3:20 pm</span>.</p>
       <div class="end-cta" data-anim>
         <button class="btn btn-primary" data-goto="s-game">Play again</button>
         <button class="btn btn-ghost" data-goto="s-hero">Back to start</button>
       </div>
-      <p class="end-credit" data-anim>Digits computed live in your browser with Machin's formula. No lookup tables were harmed.</p>
     </div>
   </section>
 

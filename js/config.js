@@ -16,9 +16,9 @@ window.CONFIG = {
 
   /* ---- session details ----  << FILL THESE IN >> */
   scheduleDay:   'Every other Sunday',
-  scheduleTime:  '2:50 – 3:30 pm',
-  room:          'Room [ROOM NO.]',      // e.g. 'Room 305'
-  firstSession:  '[FIRST SESSION DATE]', // e.g. 'Sunday, 24 August'
+  scheduleTime:  '2:40 – 3:20 pm',
+  room:          'We will let you know!',      // e.g. 'Room 305'
+  firstSession:  'We will let you know!', // e.g. 'Sunday, 24 August'
   openTo:        'Class 7 – 12',
 
   /* ---- who to find ---- */

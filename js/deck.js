@@ -77,6 +77,9 @@
   function next() {
     const h = stepHandlers[slides[index].id];
     if (h && h.next && h.next() === true) return;   // sub-step consumed it
+    /* past the last slide, loop round to the start — at a booth "next" at
+       the end means the next visitor is up */
+    if (index === slides.length - 1) { go(0, 1); return; }
     go(index + 1, 1);
   }
   function prev() {
@@ -111,8 +114,12 @@
   let wheelLock = 0;
   deckEl.addEventListener('wheel', function (e) {
     if (animating) return;
-    const el = e.target.closest('.slide-inner, .scrollable');
-    if (el && el.scrollHeight > el.clientHeight + 4) return;   // let it scroll
+    /* walk every scrollable ancestor, not just the nearest — a list that
+       fits shouldn't stop the slide-inner behind it from scrolling */
+    for (let el = e.target; el && el !== deckEl; el = el.parentElement) {
+      if (el.matches && el.matches('.slide-inner, .scrollable, .board.is-full, .arch-panel') &&
+          el.scrollHeight > el.clientHeight + 4) return;
+    }
     if (Math.abs(e.deltaY) < 18) return;
     const now = Date.now();
     if (now - wheelLock < 700) return;

@@ -30,6 +30,11 @@
     if (v > personalBest()) { try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) {} }
   }
 
+  function ordinal(k) {
+    const suffix = ['th', 'st', 'nd', 'rd'], v = k % 100;
+    return k + (suffix[(v - 20) % 10] || suffix[v] || suffix[0]);
+  }
+
   function refreshMeta() {
     scoreEl.textContent = typed.length;
     bestEl.textContent = personalBest();
@@ -107,18 +112,17 @@
     if (voluntary) {
       ovTitle.textContent = n === 0 ? 'Nothing banked' : 'Banked!';
       ovDetail.innerHTML = n === 0
-        ? 'Give it a real go — the first three are free.'
+        ? 'Come on, give it a go!'
         : 'Next digit was <b class="mono">' + window.PI.decimals[n] + '</b>, if you were curious.';
     } else {
       ovTitle.textContent = 'So close!';
       ovDetail.innerHTML = 'You said <b class="mono bad">' + got +
-        '</b> — it was <b class="mono good">' + expected + '</b>.';
+        '</b>, but it was <b class="mono good">' + expected + '</b>.';
     }
 
-    const board = window.Board.all();
-    const rank = board.filter(function (r) { return r.score >= n; }).length + 1;
     if (n > 0) {
-      ovDetail.innerHTML += '<br><span class="ov-rank">That would land you at <b>#' + rank + '</b> on the board.</span>';
+      ovDetail.innerHTML += '<br><span class="ov-rank">That would put you <b>' +
+        ordinal(window.Board.placeFor(n)) + '</b> on the board.</span>';
     }
 
     overlay.hidden = false;
@@ -162,6 +166,12 @@
   document.getElementById('ovRetry').addEventListener('click', reset);
 
   document.addEventListener('slide:enter', function (e) {
+    /* back to the opening slide = a fresh visitor: clear the run AND any
+       score overlay left hanging. Done here, while the game slide is off
+       screen, so nothing is seen disappearing. */
+    if (e.detail.id === 's-hero') { reset(); return; }
+    /* arriving on the game slide mid-overlay (e.g. tabbing to the board and
+       back) leaves it alone so a half-typed name survives */
     if (e.detail.id === 's-game') { if (!overlay.hidden) return; reset(); }
   });
   document.addEventListener('board:change', refreshMeta);

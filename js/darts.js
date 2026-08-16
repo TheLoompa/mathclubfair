@@ -108,6 +108,9 @@
   });
   document.addEventListener('slide:enter', function (e) {
     if (e.detail.id === 's-darts' && total === 0) { frame(); update(); }
+    /* back to the opening slide = a fresh visitor, so clear the darts too.
+       Delete these two lines if you'd rather they accumulate all day. */
+    if (e.detail.id === 's-hero' && total > 0) reset();
   });
 
   reset();
